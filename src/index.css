@@ -105,6 +105,50 @@ p {
   font-weight: 600;
 }
 
+/* ===== FOOTER ===== */
+.footer {
+  background: #111827;
+  color: #e5e7eb;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 2.5rem;
+}
+
+.footer h3 {
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.footer-links,
+.footer-social {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer a {
+  color: #9ca3af;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: white;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding: 1rem;
+  border-top: 1px solid #1f2933;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+
 .login-btn:hover {
   background-color: #1d4ed8;
 }
