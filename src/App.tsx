@@ -1,11 +1,8 @@
 function App() {
   return (
-    <div style={{ padding: 40 }}>
+    <div className="container">
       <h1>EduClub.mn 🚀</h1>
-
-      <p>
-        Vite + React + TypeScript амжилттай ажиллаж байна 🎉
-      </p>
+      <p>Vite + React + TypeScript амжилттай ажиллаж байна 🎉</p>
     </div>
   );
 }
