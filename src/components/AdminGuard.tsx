@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../utils/supabase";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../utils/supabase";
 
 export default function AdminGuard({
   children,
@@ -11,17 +11,39 @@ export default function AdminGuard({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        navigate("/auth");
-      } else {
-        setLoading(false);
-      }
-    });
-  }, [navigate]);
+    checkAdmin();
+  }, []);
+
+  async function checkAdmin() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.user) {
+      navigate("/login");
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .single();
+
+    if (profile?.role !== "admin") {
+      navigate("/");
+      return;
+    }
+
+    setLoading(false);
+  }
 
   if (loading) {
-    return <div className="p-10">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Шалгаж байна...
+      </div>
+    );
   }
 
   return <>{children}</>;
