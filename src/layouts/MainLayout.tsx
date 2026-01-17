@@ -5,8 +5,11 @@ import Footer from "../components/Footer";
 export default function MainLayout() {
   const location = useLocation();
 
-  const hideFooterRoutes = ["/login"];
-  const hideFooter = hideFooterRoutes.includes(location.pathname);
+  // Footer нуух замууд
+  const hideFooterRoutes = ["/login", "/admin"];
+  const hideFooter = hideFooterRoutes.some((path) =>
+    location.pathname.startsWith(path)
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
