@@ -71,7 +71,6 @@ export default function Header() {
             Centers
           </NavLink>
 
-          {/* Auth buttons */}
           {user ? (
             <>
               <NavLink to="/admin" className={linkClass}>
@@ -87,7 +86,7 @@ export default function Header() {
             </>
           ) : (
             <NavLink
-              to="/auth"
+              to="/login"   // 🔴 ЭНД ЗАСАГДСАН
               className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
             >
               Login

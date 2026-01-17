@@ -12,33 +12,43 @@ export default function Login() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+
+    if (loading) return; // double submit хамгаалалт
     setLoading(true);
     setError(null);
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // 1️⃣ Login
+    const { data, error: loginError } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+    if (loginError || !data.user) {
+      setError(loginError?.message || "Нэвтрэхэд алдаа гарлаа");
       setLoading(false);
       return;
     }
 
-    // 🔐 role шалгах
-    const userId = data.user.id;
-
-    const { data: profile } = await supabase
+    // 2️⃣ Role шалгах
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
-      .eq("user_id", userId)
-      .single();
+      .eq("user_id", data.user.id)
+      .maybeSingle();
 
-    if (profile?.role === "admin") {
-      navigate("/admin");
-    } else {
+    // Profile байхгүй эсвэл алдаа гарвал → user гэж үзнэ
+    if (profileError || !profile) {
       navigate("/");
+      setLoading(false);
+      return;
+    }
+
+    // 3️⃣ Redirect
+    if (profile.role === "admin") {
+      navigate("/admin", { replace: true });
+    } else {
+      navigate("/", { replace: true });
     }
 
     setLoading(false);
@@ -77,7 +87,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
         </button>
