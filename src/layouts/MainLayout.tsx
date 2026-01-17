@@ -1,17 +1,19 @@
 import { Outlet } from "react-router-dom";
-import Header from "../components/Header";
 
 export default function MainLayout() {
   return (
     <>
-      <Header />
+      {/* Header энд байж болно */}
 
-      <main className="container mx-auto px-4 py-6">
+      <main>
         <Outlet />
       </main>
 
-      <footer className="border-t p-4 text-sm text-center text-gray-500">
-        © EduClub.mn
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-content">
+          © EduClub.mn
+        </div>
       </footer>
     </>
   );
