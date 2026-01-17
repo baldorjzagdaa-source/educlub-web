@@ -3,14 +3,16 @@ import { supabase } from "../utils/supabase";
 import { useNavigate } from "react-router-dom";
 
 export default function Auth() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
-  async function signIn(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -20,45 +22,32 @@ export default function Auth() {
     setLoading(false);
 
     if (error) {
-      alert(error.message);
+      setError(error.message);
     } else {
-      navigate("/admin");
-    }
-  }
-
-  async function signUp() {
-    setLoading(true);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      alert(error.message);
-    } else {
-      alert("Бүртгэл амжилттай. Одоо нэвтэрнэ үү.");
+      navigate("/");
     }
   }
 
   return (
-    <div className="container mx-auto px-4 py-20 max-w-md">
-      <h1 className="text-2xl font-bold mb-6">
-        🔐 Нэвтрэх / Бүртгүүлэх
-      </h1>
-
+    <div className="min-h-[70vh] flex items-center justify-center">
       <form
-        onSubmit={signIn}
-        className="space-y-4 bg-white p-6 border rounded-xl"
+        onSubmit={handleLogin}
+        className="w-full max-w-sm border rounded-xl p-6 bg-white shadow"
       >
+        <h1 className="text-2xl font-bold mb-4 text-center">Нэвтрэх</h1>
+
+        {error && (
+          <div className="mb-3 text-sm text-red-600 text-center">
+            {error}
+          </div>
+        )}
+
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Имэйл"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded px-4 py-2"
+          className="w-full border rounded px-3 py-2 mb-3"
           required
         />
 
@@ -67,25 +56,16 @@ export default function Auth() {
           placeholder="Нууц үг"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded px-4 py-2"
+          className="w-full border rounded px-3 py-2 mb-4"
           required
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          Нэвтрэх
-        </button>
-
-        <button
-          type="button"
-          onClick={signUp}
-          disabled={loading}
-          className="w-full border py-2 rounded"
-        >
-          Бүртгүүлэх
+          {loading ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
         </button>
       </form>
     </div>
