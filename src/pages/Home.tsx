@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "../utils/supabase";
 import CenterCard from "../components/CenterCard";
-import { Link } from "react-router-dom";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 type Center = {
   id: string;
@@ -13,6 +14,8 @@ type Center = {
 };
 
 export default function Home() {
+  usePageTitle("EduClub – Сургалт, мэдлэгийн нэгдсэн платформ");
+
   const [featuredCenters, setFeaturedCenters] = useState<Center[]>([]);
   const [loading, setLoading] = useState(true);
 
