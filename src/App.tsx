@@ -1,61 +1,45 @@
-function App() {
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import MainLayout from "./layouts/MainLayout";
+import Home from "./pages/Home";
+import Centers from "./pages/Centers";
+import CenterDetail from "./pages/CenterDetail";
+import AdminAddCenter from "./pages/AdminAddCenter";
+import AdminCenters from "./pages/AdminCenters";
+import Auth from "./pages/Auth";
+import AdminGuard from "./components/AdminGuard";
+
+export default function App() {
   return (
-    <>
-      {/* HEADER */}
-      <header className="header">
-        <div className="logo">EduClub</div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<MainLayout />}>
+          {/* Public pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/centers" element={<Centers />} />
+          <Route path="/centers/:id" element={<CenterDetail />} />
+          <Route path="/auth" element={<Auth />} />
 
-        <nav className="nav">
-          <a href="#">Нүүр</a>
-          <a href="#">Курс</a>
-          <a href="#">Клуб</a>
-          <a href="#">Холбоо барих</a>
-        </nav>
+          {/* Admin pages */}
+          <Route
+            path="/admin"
+            element={
+              <AdminGuard>
+                <AdminAddCenter />
+              </AdminGuard>
+            }
+          />
 
-        <button className="login-btn">Нэвтрэх</button>
-      </header>
-
-      {/* MAIN CONTENT */}
-      <main className="container">
-        <h1>EduClub.mn 🚀</h1>
-        <p>Vite + React + TypeScript амжилттай ажиллаж байна 🎉</p>
-
-        <div className="buttons">
-          <button className="btn primary">Эхлэх</button>
-          <button className="btn secondary">Курсууд үзэх</button>
-        </div>
-      </main>
-    </>
-
-      {/* FOOTER */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div>
-            <h3>EduClub.mn</h3>
-            <p>Боловсрол • Спорт • Клуб</p>
-          </div>
-
-          <div className="footer-links">
-            <a href="#">Нүүр</a>
-            <a href="#">Курсууд</a>
-            <a href="#">Нэвтрэх</a>
-          </div>
-
-          <div className="footer-social">
-            <a href="#" target="_blank">Facebook</a>
-            <a href="#" target="_blank">Instagram</a>
-          </div>
-        </div>
-
-        <div className="footer-bottom">
-          © {new Date().getFullYear()} EduClub.mn — All rights reserved
-        </div>
-      </footer>
-
-
-
-    
+          <Route
+            path="/admin/centers"
+            element={
+              <AdminGuard>
+                <AdminCenters />
+              </AdminGuard>
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
