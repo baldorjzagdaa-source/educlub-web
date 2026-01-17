@@ -2,19 +2,23 @@ import { Outlet } from "react-router-dom";
 
 export default function MainLayout() {
   return (
-    <>
-      {/* Header энд байж болно */}
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header>
+        EduClub
+      </header>
 
-      <main>
+      {/* Page content */}
+      <main className="flex-1">
         <Outlet />
       </main>
 
-      {/* FOOTER */}
+      {/* Footer */}
       <footer className="footer">
         <div className="footer-content">
           © EduClub.mn
         </div>
       </footer>
-    </>
+    </div>
   );
 }
