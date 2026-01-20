@@ -10,13 +10,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (loading) return;
 
     setLoading(true);
     setError(null);
 
+    // 1️⃣ Login
     const { data, error: loginError } =
       await supabase.auth.signInWithPassword({
         email,
@@ -29,13 +30,18 @@ export default function Login() {
       return;
     }
 
-    const { data: profile } = await supabase
+    // 2️⃣ Role авах (profiles.id = auth.users.id)
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("role")
-      .eq("user_id", data.user.id)
+      .eq("id", data.user.id)
       .maybeSingle();
 
-    if (profile?.role === "admin") {
+    // 3️⃣ Redirect логик
+    if (!profile || profileError) {
+      // profile байхгүй → энгийн хэрэглэгч
+      navigate("/", { replace: true });
+    } else if (profile.role === "admin") {
       navigate("/admin", { replace: true });
     } else {
       navigate("/", { replace: true });
