@@ -10,14 +10,13 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return;
 
     setLoading(true);
     setError(null);
 
-    // 1️⃣ Login
     const { data, error: loginError } =
       await supabase.auth.signInWithPassword({
         email,
@@ -30,18 +29,13 @@ export default function Login() {
       return;
     }
 
-    // 2️⃣ Role авах (profiles.id = auth.users.id)
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from("profiles")
       .select("role")
-      .eq("id", data.user.id)
+      .eq("user_id", data.user.id)
       .maybeSingle();
 
-    // 3️⃣ Redirect логик
-    if (!profile || profileError) {
-      // profile байхгүй → энгийн хэрэглэгч
-      navigate("/", { replace: true });
-    } else if (profile.role === "admin") {
+    if (profile?.role === "admin") {
       navigate("/admin", { replace: true });
     } else {
       navigate("/", { replace: true });
@@ -77,8 +71,18 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded mb-4"
+          className="w-full border px-3 py-2 rounded mb-2"
         />
+
+        {/* 🔐 НУУЦ ҮГ СЭРГЭЭХ */}
+        <p className="text-sm text-center mb-4">
+          <Link
+            to="/forgot-password"
+            className="text-blue-600 hover:underline"
+          >
+            Нууц үг мартсан уу?
+          </Link>
+        </p>
 
         <button
           type="submit"
@@ -88,7 +92,7 @@ export default function Login() {
           {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
         </button>
 
-        {/* ✅ БҮРТГҮҮЛЭХ ЛИНК */}
+        {/* 🆕 БҮРТГҮҮЛЭХ */}
         <p className="text-sm text-center mt-4">
           Шинэ хэрэглэгч үү?{" "}
           <Link to="/register" className="text-blue-600 hover:underline">
