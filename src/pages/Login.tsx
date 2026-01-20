@@ -24,24 +24,23 @@ export default function Login() {
       });
 
     if (loginError || !data.user) {
-      setError(loginError?.message || "Нэвтрэхэд алдаа гарлаа");
+      setError("Имэйл эсвэл нууц үг буруу");
       setLoading(false);
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .maybeSingle();
-
-    if (profile?.role === "admin") {
-      navigate("/admin", { replace: true });
-    } else {
-      navigate("/", { replace: true });
-    }
-
+    navigate("/", { replace: true });
     setLoading(false);
+  }
+
+  // 🔵 GOOGLE LOGIN
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "https://educclub.mn",
+      },
+    });
   }
 
   return (
@@ -74,12 +73,9 @@ export default function Login() {
           className="w-full border px-3 py-2 rounded mb-2"
         />
 
-        {/* 🔐 НУУЦ ҮГ СЭРГЭЭХ */}
-        <p className="text-sm text-center mb-4">
-          <Link
-            to="/forgot-password"
-            className="text-blue-600 hover:underline"
-          >
+        {/* 🔹 Нууц үг сэргээх */}
+        <p className="text-sm text-right mb-4">
+          <Link to="/forgot-password" className="text-blue-600 hover:underline">
             Нууц үг мартсан уу?
           </Link>
         </p>
@@ -87,12 +83,25 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 mb-3"
         >
           {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
         </button>
 
-        {/* 🆕 БҮРТГҮҮЛЭХ */}
+        {/* 🔵 GOOGLE BUTTON */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full border py-2 rounded flex items-center justify-center gap-2 hover:bg-gray-50"
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google"
+            className="w-5 h-5"
+          />
+          Google-ээр нэвтрэх
+        </button>
+
         <p className="text-sm text-center mt-4">
           Шинэ хэрэглэгч үү?{" "}
           <Link to="/register" className="text-blue-600 hover:underline">
