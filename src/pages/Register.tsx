@@ -11,7 +11,7 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  async function handleRegister(e: React.FormEvent) {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
 
@@ -19,39 +19,31 @@ export default function Register() {
     setError(null);
     setSuccess(null);
 
-    // 1️⃣ Supabase auth signup
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: "https://educlub.mn/auth/callback",
+      },
     });
 
-    if (signUpError || !data.user) {
-      setError(signUpError?.message || "Бүртгүүлэхэд алдаа гарлаа");
+    if (error) {
+      setError(error.message);
       setLoading(false);
       return;
     }
 
-    // 2️⃣ profiles table → default role = student
-    const { error: profileError } = await supabase.from("profiles").insert({
-      user_id: data.user.id,
-      email: email,
-      role: "student",
-    });
-
-    if (profileError) {
-      setError("Profile үүсгэхэд алдаа гарлаа");
-      setLoading(false);
-      return;
-    }
-
-    setSuccess("Бүртгэл амжилттай! Нэвтрэх хуудас руу шилжинэ…");
+    // ❗ Profile-ийг trigger автоматаар үүсгэнэ
+    setSuccess(
+      "Бүртгэл амжилттай! Имэйлээ шалгаад баталгаажуулна уу."
+    );
 
     setTimeout(() => {
       navigate("/login");
-    }, 1500);
+    }, 2000);
 
     setLoading(false);
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -66,7 +58,9 @@ export default function Register() {
         )}
 
         {success && (
-          <p className="text-green-600 text-sm mb-3 text-center">{success}</p>
+          <p className="text-green-600 text-sm mb-3 text-center">
+            {success}
+          </p>
         )}
 
         <input

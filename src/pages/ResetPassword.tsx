@@ -1,60 +1,78 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabase";
-import { useNavigate } from "react-router-dom";
 
 export default function ResetPassword() {
-  const navigate = useNavigate();
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  async function handleUpdate(e: React.FormEvent) {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash.replace("#", ""));
+    const access_token = params.get("access_token");
+    const type = params.get("type");
+
+    if (type === "recovery" && access_token) {
+      supabase.auth.setSession({
+        access_token,
+        refresh_token: access_token,
+      });
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    setError("");
+    setSuccess("");
 
-    const { error } = await supabase.auth.updateUser({
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
+    if (password.length < 6) {
+      setError("Нууц үг хамгийн багадаа 6 тэмдэгт байна");
       return;
     }
 
-    navigate("/login", { replace: true });
-  }
+    if (password !== confirm) {
+      setError("Нууц үг таарахгүй байна");
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password });
+
+    if (error) setError(error.message);
+    else setSuccess("Нууц үг амжилттай шинэчлэгдлээ");
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <form
-        onSubmit={handleUpdate}
-        className="w-full max-w-sm bg-white p-6 rounded-lg shadow"
-      >
-        <h1 className="text-xl font-bold mb-4 text-center">
-          Шинэ нууц үг
-        </h1>
+    <div style={{ maxWidth: 420, margin: "100px auto" }}>
+      <h2>Шинэ нууц үг</h2>
 
-        {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
-
+      <form onSubmit={handleSubmit}>
         <input
           type="password"
           placeholder="Шинэ нууц үг"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded mb-4"
         />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          {loading ? "Шинэчилж байна..." : "Нууц үг шинэчлэх"}
+        <input
+          type="password"
+          placeholder="Шинэ нууц үг (дахин)"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          required
+          style={{ marginTop: 10 }}
+        />
+
+        <button type="submit" style={{ marginTop: 15 }}>
+          Нууц үг шинэчлэх
         </button>
       </form>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && <p style={{ color: "green" }}>{success}</p>}
     </div>
   );
 }
