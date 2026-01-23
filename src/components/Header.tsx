@@ -1,74 +1,49 @@
-import { NavLink, useNavigate } from "react-router-dom"
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 import { useAuth } from "../context/AuthContext"
 
 export default function Header() {
   const { session } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const isHome = location.pathname === "/"
 
   async function logout() {
     await supabase.auth.signOut()
     navigate("/")
   }
 
-  const baseClass =
-    "px-4 py-2 rounded-md text-sm transition-colors"
-
-  const activeClass =
-    "text-blue-600 font-semibold border-b-2 border-blue-600"
-
-  const inactiveClass =
-    "text-gray-700 hover:text-blue-500"
+  const linkClass = "px-4 py-2 rounded-md text-sm"
 
   return (
     <header className="border-b p-4 flex justify-between items-center">
-      <NavLink to="/" className="font-bold text-lg">
+      <NavLink to="/" className="font-bold">
         EduClub
       </NavLink>
 
-      <nav className="flex gap-4 items-center">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `${baseClass} ${
-              isActive ? activeClass : inactiveClass
-            }`
-          }
-        >
+      <nav className="flex gap-2 items-center">
+        <NavLink to="/" className={linkClass}>
           Нүүр
         </NavLink>
 
-        {!session ? (
+        {session ? (
+          <button onClick={logout} className={linkClass}>
+            Гарах
+          </button>
+        ) : (
           <>
-            <NavLink
-              to="/login"
-              className={({ isActive }) =>
-                `${baseClass} ${
-                  isActive ? activeClass : inactiveClass
-                }`
-              }
-            >
+            <NavLink to="/login" className={linkClass}>
               Нэвтрэх
             </NavLink>
 
-            <NavLink
-              to="/register"
-              className={({ isActive }) =>
-                `${baseClass} ${
-                  isActive ? activeClass : inactiveClass
-                }`
-              }
-            >
-              Бүртгүүлэх
-            </NavLink>
+            {/* ❌ НҮҮР ХУУДСАНД БҮРТГҮҮЛЭХИЙГ НУУНА */}
+            {!isHome && (
+              <NavLink to="/register" className={linkClass}>
+                Бүртгүүлэх
+              </NavLink>
+            )}
           </>
-        ) : (
-          <button
-            onClick={logout}
-            className={`${baseClass} text-red-600 hover:text-red-700`}
-          >
-            Гарах
-          </button>
         )}
       </nav>
     </header>
