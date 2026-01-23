@@ -1,68 +1,64 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../utils/supabase";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { supabase } from "../lib/supabase"
 
 export default function ResetPassword() {
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [ready, setReady] = useState(false)
+  const navigate = useNavigate()
 
+  // 🔑 Recovery session тохируулах
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
-    const params = new URLSearchParams(hash);
+    const params = new URLSearchParams(window.location.search)
 
-    const access_token = params.get("access_token");
-    const type = params.get("type");
+    const access_token = params.get("access_token")
+    const refresh_token = params.get("refresh_token")
 
-    if (type === "recovery" && access_token) {
-      supabase.auth.setSession({
+    if (!access_token || !refresh_token) {
+      setError("Invalid or expired reset link")
+      return
+    }
+
+    supabase.auth
+      .setSession({
         access_token,
-        refresh_token: access_token,
-      });
+        refresh_token,
+      })
+      .then(({ error }) => {
+        if (error) setError(error.message)
+        else setReady(true)
+      })
+  }, [])
+
+  // 🔐 Нууц үг шинэчлэх
+  async function submit() {
+    const { error } = await supabase.auth.updateUser({ password })
+
+    if (error) {
+      setError(error.message)
+      return
     }
-  }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (password !== confirm) {
-      setError("Нууц үг таарахгүй байна");
-      return;
-    }
-
-    const { error } = await supabase.auth.updateUser({ password });
-
-    if (error) setError(error.message);
-    else setSuccess("Нууц үг амжилттай шинэчлэгдлээ");
+    navigate("/login")
   }
 
+  if (!ready) return <p>Recovery session тохируулж байна...</p>
+
   return (
-    <div style={{ maxWidth: 400, margin: "100px auto" }}>
-      <h2>Шинэ нууц үг</h2>
+    <div style={{ maxWidth: 400, margin: "40px auto" }}>
+      <h3>Шинэ нууц үг</h3>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="password"
-          placeholder="Шинэ нууц үг"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Шинэ нууц үг"
+      />
 
-        <input
-          type="password"
-          placeholder="Шинэ нууц үг (баталгаажуулах)"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          required
-        />
-
-        <button type="submit">Нууц үг шинэчлэх</button>
-      </form>
+      <button onClick={submit}>Нууц үг шинэчлэх</button>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
     </div>
-  );
+  )
 }

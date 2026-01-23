@@ -1,67 +1,46 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "../utils/supabase";
+import { useState } from "react"
+import { useNavigate, Link } from "react-router-dom"
+import { supabase } from "../lib/supabase"
 
 export default function Login() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    if (loading) return;
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-    setLoading(true);
-    setError(null);
+    setLoading(false)
 
-    const { data, error: loginError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-    if (loginError || !data.user) {
-      setError("Имэйл эсвэл нууц үг буруу");
-      setLoading(false);
-      return;
+    if (error) {
+      setError("Email эсвэл нууц үг буруу байна")
+      return
     }
 
-    navigate("/", { replace: true });
-    setLoading(false);
-  }
-
-  // 🔵 GOOGLE LOGIN
-  async function handleGoogleLogin() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: "https://educclub.mn",
-      },
-    });
+    navigate("/")
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-sm bg-white p-6 rounded-lg shadow"
-      >
-        <h1 className="text-2xl font-bold mb-4 text-center">Нэвтрэх</h1>
+    <div style={{ maxWidth: 400, margin: "40px auto" }}>
+      <h2>Нэвтрэх</h2>
 
-        {error && (
-          <p className="text-red-600 text-sm mb-3 text-center">{error}</p>
-        )}
-
+      <form onSubmit={submit}>
         <input
           type="email"
-          placeholder="Имэйл"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded mb-3"
+          style={{ width: "100%", padding: 8, marginBottom: 10 }}
         />
 
         <input
@@ -70,45 +49,28 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded mb-2"
+          style={{ width: "100%", padding: 8, marginBottom: 10 }}
         />
-
-        {/* 🔹 Нууц үг сэргээх */}
-        <p className="text-sm text-right mb-4">
-          <Link to="/forgot-password" className="text-blue-600 hover:underline">
-            Нууц үг мартсан уу?
-          </Link>
-        </p>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 mb-3"
+          style={{
+            width: "100%",
+            padding: 10,
+            opacity: loading ? 0.6 : 1,
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
         >
           {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
         </button>
-
-        {/* 🔵 GOOGLE BUTTON */}
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          className="w-full border py-2 rounded flex items-center justify-center gap-2 hover:bg-gray-50"
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          Google-ээр нэвтрэх
-        </button>
-
-        <p className="text-sm text-center mt-4">
-          Шинэ хэрэглэгч үү?{" "}
-          <Link to="/register" className="text-blue-600 hover:underline">
-            Бүртгүүлэх
-          </Link>
-        </p>
       </form>
+
+      {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
+
+      <div style={{ marginTop: 12, fontSize: 14 }}>
+        <Link to="/forgot-password">Нууц үг мартсан?</Link>
+      </div>
     </div>
-  );
+  )
 }
