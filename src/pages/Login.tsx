@@ -68,8 +68,17 @@ export default function Login() {
 
       {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
 
-      <div style={{ marginTop: 12, fontSize: 14 }}>
+      {/* 👇 ЭНД Л ЗАСВАР ОРСОН */}
+      <div
+        style={{
+          marginTop: 12,
+          fontSize: 14,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <Link to="/forgot-password">Нууц үг мартсан?</Link>
+        <Link to="/register">Бүртгүүлэх</Link>
       </div>
     </div>
   )
