@@ -29,6 +29,20 @@ export default function Login() {
     navigate("/")
   }
 
+  // ✅ GOOGLE LOGIN ЗӨВ БАЙРЛАЛ
+  async function loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    })
+
+    if (error) {
+      setError(error.message)
+    }
+  }
+
   return (
     <div style={{ maxWidth: 400, margin: "40px auto" }}>
       <h2>Нэвтрэх</h2>
@@ -68,7 +82,7 @@ export default function Login() {
 
       {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
 
-      {/* 👇 ЭНД Л ЗАСВАР ОРСОН */}
+      {/* 🔗 Forgot + Register */}
       <div
         style={{
           marginTop: 12,
@@ -79,6 +93,22 @@ export default function Login() {
       >
         <Link to="/forgot-password">Нууц үг мартсан?</Link>
         <Link to="/register">Бүртгүүлэх</Link>
+      </div>
+
+      {/* 🔵 GOOGLE LOGIN BUTTON */}
+      <div style={{ marginTop: 16 }}>
+        <button
+          onClick={loginWithGoogle}
+          style={{
+            width: "100%",
+            padding: 10,
+            border: "1px solid #ddd",
+            background: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          Google-ээр нэвтрэх
+        </button>
       </div>
     </div>
   )
