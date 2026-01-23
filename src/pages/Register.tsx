@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 
 export default function Register() {
@@ -8,7 +8,6 @@ export default function Register() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -27,12 +26,21 @@ export default function Register() {
       return
     }
 
-    setSuccess(true)
+    navigate("/")
+  }
 
-    // ✅ auto redirect (email confirm OFF үед шууд орно)
-    setTimeout(() => {
-      navigate("/dashboard")
-    }, 1500)
+  // ✅ GOOGLE-ЭЭР БҮРТГҮҮЛЭХ
+  async function registerWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    })
+
+    if (error) {
+      setError(error.message)
+    }
   }
 
   return (
@@ -68,20 +76,31 @@ export default function Register() {
             cursor: loading ? "not-allowed" : "pointer",
           }}
         >
-          {loading ? "Бүртгэж байна..." : "Бүртгүүлэх"}
+          {loading ? "Бүртгүүлж байна..." : "Бүртгүүлэх"}
         </button>
       </form>
 
       {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
 
-      {success && (
-        <p style={{ color: "green", marginTop: 10 }}>
-          ✔ Амжилттай бүртгэгдлээ. Нэвтэрч байна...
-        </p>
-      )}
-
+      {/* 🔗 Login линк */}
       <div style={{ marginTop: 12, fontSize: 14 }}>
         Аль хэдийн бүртгэлтэй юу? <Link to="/login">Нэвтрэх</Link>
+      </div>
+
+      {/* 🔵 GOOGLE REGISTER */}
+      <div style={{ marginTop: 16 }}>
+        <button
+          onClick={registerWithGoogle}
+          style={{
+            width: "100%",
+            padding: 10,
+            border: "1px solid #ddd",
+            background: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          Google-ээр бүртгүүлэх
+        </button>
       </div>
     </div>
   )
